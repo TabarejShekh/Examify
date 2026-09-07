@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel p-4" style="max-width: 1000px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="color: var(--primary-color);">Setup Exam: {{ exam.title }}</h2>
+        <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">← Back to Setup</a>
+    </div>
+
+    <!-- UI Tabs -->
+    <div style="display: flex; gap: 1rem; border-bottom: 2px solid var(--border-color); margin-bottom: 2rem;">
+        <button onclick="switchTab('fast')" id="tab-fast"
+            style="background: none; border: none; padding: 0.5rem 1rem; font-weight: bold; color: var(--primary-color); border-bottom: 3px solid var(--primary-color); cursor: pointer; font-size: 1.1rem;">⚡
+            Fast Paste AI Mode</button>
+        <button onclick="switchTab('builder')" id="tab-builder"
+            style="background: none; border: none; padding: 0.5rem 1rem; font-weight: bold; color: var(--text-muted); cursor: pointer; font-size: 1.1rem;">🛠️
+            Visual Builder</button>
+    </div>
+
+    <!-- TAB 1: Fast Paste (Aiken Format) -->
+    <div id="section-fast">
+        <div
+            style="background: rgba(255,255,255,0.8); border-left: 4px solid var(--primary-color); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+            <p style="margin: 0;"><strong>Fastest way to add questions!</strong> Just copy-paste your text. Format
+                rules:</p>
+            <ul style="font-size: 0.9rem; color: #4a5568; margin-top: 0.5rem; margin-bottom: 0;">
+                <li>Change logic sections by typing <code>[SECTION: Name]</code></li>
+                <li>Set custom marks per question by writing <code>MARKS: 2</code> on its own line (Defaults to 1 if omitted).</li>
+                <li>Questions can be multiple lines.</li>
+                <li>Write choices as <code>A. Text</code> or <code>B) Text</code></li>
+                <li>Specify correct choice at the end using <code>ANSWER: B</code></li>
+            </ul>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="raw_questions_text" rows="15"
+                style="width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; font-family: monospace; font-size: 1rem; background: #f8fafc;"
+                placeholder="[SECTION: Aptitude]
+MARKS: 2
+What is the derivative of x^2?
+A) 2x
+B) x
+C) 2
+D) 0
+ANSWER: A"></textarea>
+
+            <button type="submit" class="btn btn-primary"
+                style="margin-top: 1rem; padding: 0.8rem 2rem; font-size: 1.1rem;">🚀 Process & Add Questions</button>
+        </form>
+    </div>
+
+    <!-- TAB 2: Visual Builder -->
+    <div id="section-builder" style="display: none;">
+        <p class="text-muted">Fill out the fields below. Click "Add Another" to append more questions, and "Save All
+            Questions" when you are done.</p>
+
+        <div id="questions-container">
+            <!-- JS will render questions here -->
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+            <button type="button" class="btn btn-outline" onclick="addQuestionUI()">+ Add Another Question</button>
+            <button type="button" class="btn btn-primary" onclick="submitBulk()">Save All Questions</button>
+        </div>
+
+        <form id="bulk-form" method="POST" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="questions_json" id="questions_json">
+        </form>
+    </div>
+</div>
+
+<script>
+    /* TAB SWITCHING LOGIC */
+    function switchTab(tab) {
+        document.getElementById('section-fast').style.display = (tab === 'fast') ? 'block' : 'none';
+        document.getElementById('section-builder').style.display = (tab === 'builder') ? 'block' : 'none';
+
+        document.getElementById('tab-fast').style.color = (tab === 'fast') ? 'var(--primary-color)' : 'var(--text-muted)';
+        document.getElementById('tab-fast').style.borderBottom = (tab === 'fast') ? '3px solid var(--primary-color)' : 'none';
+
+        document.getElementById('tab-builder').style.color = (tab === 'builder') ? 'var(--primary-color)' : 'var(--text-muted)';
+        document.getElementById('tab-builder').style.borderBottom = (tab === 'builder') ? '3px solid var(--primary-color)' : 'none';
+    }
+
+    /* BUILDER JS LOGIC */
+    let qCount = 0;
+
+    function addQuestionUI() {
+        qCount++;
+        const container = document.getElementById('questions-container');
+
+        const qDiv = document.createElement('div');
+        qDiv.style = "background: rgba(255,255,255,0.7); border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);";
+        qDiv.id = `qbox_${qCount}`;
+        qDiv.className = "qbox";
+
+        qDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h5 style="margin: 0; color: #2b6cb0; font-size: 1.1rem;">Question ${qCount}</h5>
+                <button type="button" onclick="document.getElementById('qbox_${qCount}').remove()" style="background: none; border: none; color: #e53e3e; cursor: pointer; font-weight: bold;">✕ Remove</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Section Name</label>
+                <input type="text" class="q-section form-control" value="General">
+            </div>
+            
+            <div class="form-group">
+                <label>Question Text *</label>
+                <textarea class="q-text form-control" rows="2" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Marks</label>
+                <input type="number" class="q-marks form-control" value="1" min="1" style="max-width: 150px;">
+            </div>
+            
+            <div style="margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="background: white; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <label style="display: flex; gap: 0.5rem; font-weight: bold;">
+                        <input type="radio" name="q_${qCount}_correct" value="1" checked> Choice 1 (Correct)
+                    </label>
+                    <input type="text" class="q-choice form-control" data-idx="1" required>
+                </div>
+                
+                <div style="background: white; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <label style="display: flex; gap: 0.5rem; font-weight: bold;">
+                        <input type="radio" name="q_${qCount}_correct" value="2"> Choice 2
+                    </label>
+                    <input type="text" class="q-choice form-control" data-idx="2" required>
+                </div>
+                
+                <div style="background: white; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <label style="display: flex; gap: 0.5rem; font-weight: bold;">
+                        <input type="radio" name="q_${qCount}_correct" value="3"> Choice 3
+                    </label>
+                    <input type="text" class="q-choice form-control" data-idx="3">
+                </div>
+                
+                <div style="background: white; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <label style="display: flex; gap: 0.5rem; font-weight: bold;">
+                        <input type="radio" name="q_${qCount}_correct" value="4"> Choice 4
+                    </label>
+                    <input type="text" class="q-choice form-control" data-idx="4">
+                </div>
+            </div>
+        `;
+        container.appendChild(qDiv);
+    }
+
+    function submitBulk() {
+        const boxes = document.querySelectorAll('.qbox');
+        if (boxes.length === 0) {
+            alert("Add at least one question!");
+            return;
+        }
+
+        let payload = [];
+        let hasError = false;
+
+        boxes.forEach((box, i) => {
+            let section = box.querySelector('.q-section').value;
+            let text = box.querySelector('.q-text').value;
+            let marks = box.querySelector('.q-marks').value;
+
+            if (!text) {
+                alert(`Question ${i + 1} text is empty!`);
+                hasError = true;
+            }
+
+            let choices = [];
+            let choiceInputs = box.querySelectorAll('.q-choice');
+            choiceInputs.forEach(input => choices.push(input.value));
+
+            let radioName = box.querySelector('input[type="radio"]').name;
+            let correctChoice = document.querySelector(`input[name="${radioName}"]:checked`).value;
+
+            payload.push({
+                section_name: section,
+                text: text,
+                marks: marks,
+                choices: choices,
+                correct_choice: correctChoice
+            });
+        });
+
+        if (!hasError) {
+            document.getElementById('questions_json').value = JSON.stringify(payload);
+            document.getElementById('bulk-form').submit();
+        }
+    }
+
+    // Add first question automatically when page loads
+    window.onload = () => addQuestionUI();
+</script>
+{% endblock %}

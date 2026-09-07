@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 850px; margin: 0 auto; margin-bottom: 4rem;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="margin: 0; color: var(--primary-color); font-size: 2.4rem; font-weight: 900; letter-spacing: -0.5px;">Edit Question Entry</h2>
+            <p style="margin: 0; color: var(--text-muted); font-size: 1.15rem; margin-top: 0.4rem;">Modifying question for: <strong style="color: #475569;">{{ question.exam.title }}</strong></p>
+        </div>
+        <a href="{% url 'exam_detail' question.exam.pk %}" class="btn btn-outline" style="border-radius: 50px; border-width: 2px; font-weight: 700;">
+            ← Back to Setup
+        </a>
+    </div>
+
+    <!-- Main Glass Panel -->
+    <div class="glass-panel" style="padding: 3.5rem; border-top: 6px solid #d97706; box-shadow: 0 20px 40px rgba(0,0,0,0.08);">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 0.6rem; font-size: 1rem; text-transform: uppercase;">Section Name <span style="color: #ef4444;">*</span></label>
+                <input type="text" name="section_name" class="form-control" value="{{ question.section_name }}" required>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 0.6rem; font-size: 1rem; text-transform: uppercase;">Question Text <span style="color: #ef4444;">*</span></label>
+                <textarea name="question_text" class="form-control" rows="4" required>{{ question.text }}</textarea>
+            </div>
+            
+            <div style="margin-bottom: 3rem;">
+                <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 0.6rem; font-size: 1rem; text-transform: uppercase;">Points / Marks <span style="color: #ef4444;">*</span></label>
+                <input type="number" name="marks" class="form-control" value="{{ question.marks }}" min="1" style="max-width: 200px;" required>
+            </div>
+            
+            <div style="border-top: 2px dashed #cbd5e1; padding-top: 2rem; margin-bottom: 2.5rem;">
+                <h3 style="color: #0f172a; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.5rem;">Multiple Choices</h3>
+                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 2rem;"><i class="fa-solid fa-circle-info"></i> Update the texts or change the correct choice.</p>
+                
+                <div style="display: grid; gap: 1.5rem;">
+                    {% for choice in choices %}
+                    <div style="display: flex; align-items: center; gap: 1.5rem; background: #f8fafc; padding: 1.2rem; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s ease;">
+                        <input type="radio" name="is_correct" id="correct_{{ forloop.counter }}" value="{{ forloop.counter }}" {% if choice.is_correct %}checked{% endif %} class="form-check-input" style="width: 24px; height: 24px;">
+                        <input type="text" name="choice_{{ forloop.counter }}" class="form-control" value="{{ choice.text }}" placeholder="Enter choice text..." {% if forloop.counter <= 2 %}required{% endif %} style="flex-grow: 1; border-color: #cbd5e1;">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1; padding: 1.2rem; font-size: 1.2rem; font-weight: 800; border-radius: 12px; background: linear-gradient(135deg, #d97706, #b45309); border: none; box-shadow: 0 10px 25px rgba(217, 119, 6, 0.3);">
+                    <i class="fa-solid fa-save"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        background: #f8fafc;
+        border: 2px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        transition: all 0.25s ease;
+        font-family: inherit;
+        font-size: 1.05rem;
+        color: #0f172a;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .form-control:focus {
+        background: #ffffff;
+        border-color: #d97706;
+        box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
+        outline: none;
+    }
+</style>
+{% endblock %}

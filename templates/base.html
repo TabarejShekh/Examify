@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examify - Professional Examination Management</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* HIGH-END COLOR PALETTE (Vibrant Stripe-like UI) */
+        :root {
+            --primary-color: #4f46e5;
+            /* Indigo 600 */
+            --primary-hover: #4338ca;
+            /* Indigo 700 */
+            --secondary-color: #ec4899;
+            /* Pink 500 */
+            --accent-color: #06b6d4;
+            /* Cyan 500 */
+
+            --bg-nav: rgba(255, 255, 255, 0.85);
+            --bg-card: rgba(255, 255, 255, 0.95);
+
+            --text-main: #0f172a;
+            /* Slate 900 */
+            --text-muted: #475569;
+            /* Slate 600 */
+
+            --border-color: #e2e8f0;
+            /* Slate 200 */
+            --radius-md: 12px;
+            --radius-lg: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            height: 100%;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+
+            /* Custom Sleek Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Stunning Modern Mesh Gradient Background */
+            background-color: #f8fafc;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.2) 0, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(188, 71%, 38%, 0.15) 0, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(253, 88%, 57%, 0.15) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: var(--bg-nav);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--text-main);
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.23);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-main);
+            transform: translateY(-2px);
+        }
+
+        /* LAYOUT & CARDS */
+        .main-container {
+            flex: 1 0 auto; /* Allow to grow, don't shrink, auto basis */
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 5%;
+        }
+
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+        }
+
+        /* UNIVERSAL FORM STYLING FOR PERFECT ALIGNMENT */
+        .form-group {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        /* Style all django form inputs perfectly */
+        .form-group input,
+        .form-group select,
+        .form-group textarea,
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus,
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: -0.2rem;
+        }
+
+        /* ALERTS / MESSAGES */
+        .alert-messages {
+            margin-bottom: 2rem;
+            list-style: none;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-warning {
+            background-color: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fef08a;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* FOOTER */
+        footer {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 2rem 5%;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: auto;
+            flex-shrink: 0;
+            width: 100%;
+        }
+
+        /* GLOBAL RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.8rem;
+            }
+            .main-container {
+                padding: 1rem 5%;
+            }
+            .glass-panel {
+                padding: 1.5rem;
+            }
+            .chatbot-window {
+                width: 90%;
+                right: 5%;
+                bottom: 80px;
+                height: 60vh;
+            }
+            .footer-content {
+                flex-direction: column !important;
+                justify-content: center !important;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <i class="fa-solid fa-graduation-cap"></i>
+            Examify
+        </a>
+
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+            <a href="{% if user.is_student %}{% url 'student_dashboard' %}{% elif user.is_teacher %}{% url 'teacher_dashboard' %}{% else %}/{% endif %}" class="nav-link"
+                style="font-weight: 700; color: var(--primary-color); background: rgba(79,70,229,0.1); padding: 0.4rem 1rem; border-radius: 50px; display: flex; align-items: center; gap: 8px; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                {% else %}
+                    <i class="fa-solid fa-user-check"></i> 
+                {% endif %}
+                {{ user.first_name|default:user.username }}
+            </a>
+            {% if user.is_student %}
+            <a href="{% url 'student_dashboard' %}#analytics-section" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+            {% elif user.is_teacher %}
+            <a href="{% url 'teacher_dashboard' %}#analytics-section" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+            {% endif %}
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline" style="padding: 0.4rem 1rem;">Logout</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}" class="nav-link">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 0.5rem 1.2rem;">Get Started</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="main-container">
+        {% if messages %}
+        <ul class="alert-messages">
+            {% for message in messages %}
+            <li class="alert alert-{{ message.tags|default:'info' }}">
+                {% if message.tags == 'success' %}<i class="fa-solid fa-circle-check"></i>{% endif %}
+                {% if message.tags == 'error' %}<i class="fa-solid fa-triangle-exclamation"></i>{% endif %}
+                {{ message }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer style="background: white; border-top: 1px solid #e2e8f0; padding: 1.2rem 5%; color: var(--text-muted); margin-top: auto; font-size: 0.9rem; width: 100%; flex-shrink: 0;">
+        <div class="footer-content" style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <span><i class="fa-solid fa-graduation-cap" style="color: var(--primary-color);"></i> <strong style="color: var(--text-main);">Examify</strong> © 2026. All rights reserved.</span>
+            <span>Developed by <strong style="color: var(--text-main);">Mohd Sarim Khan</strong> | Built securely with <i class="fa-brands fa-python" style="color: #3776ab;"></i> Django</span>
+        </div>
+    </footer>
+
+    <!-- CHATBOT UI & LOGIC -->
+    <style>
+        .chatbot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+            z-index: 1000;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .chatbot-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 450px;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .chatbot-window.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .chatbot-close {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-msg {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .chat-bot {
+            background: #f1f5f9;
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-user {
+            background: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chatbot-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .chatbot-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .chatbot-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .chatbot-send {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .chatbot-send:hover {
+            background: var(--primary-hover);
+        }
+        
+        .chat-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .chat-option-btn {
+            background: white;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .chat-option-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+    </style>
+
+    <button class="chatbot-btn" id="chatbotToggle">
+        <i class="fa-solid fa-robot"></i>
+    </button>
+
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <span><i class="fa-solid fa-graduation-cap"></i> Examify Assistant</span>
+            <button class="chatbot-close" id="chatbotClose"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chat-msg chat-bot" style="max-width: 90%;">
+                <strong><i class="fa-solid fa-robot" style="color: var(--primary-color);"></i> Examify AI Assistant</strong><br><br>
+                Hello! I am here to help you navigate the Examify platform.<br><br>
+                <strong>Try asking me questions like:</strong><br>
+                <ul style="margin-left: 15px; margin-top: 5px; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-muted); list-style-type: none; padding: 0;">
+                    <li><i class="fa-solid fa-circle-play" style="color: var(--accent-color); font-size: 0.7rem; margin-right: 5px;"></i> "How do I start an exam?"</li>
+                    <li><i class="fa-solid fa-scroll" style="color: var(--accent-color); font-size: 0.7rem; margin-right: 5px;"></i> "What are the exam rules?"</li>
+                    <li><i class="fa-solid fa-square-poll-vertical" style="color: var(--accent-color); font-size: 0.7rem; margin-right: 5px;"></i> "How can I check my results?"</li>
+                    <li><i class="fa-solid fa-file-circle-plus" style="color: var(--secondary-color); font-size: 0.7rem; margin-right: 5px;"></i> "How to create an exam?" (Teachers)</li>
+                    <li><i class="fa-solid fa-headset" style="color: var(--primary-color); font-size: 0.7rem; margin-right: 5px;"></i> "I need technical support"</li>
+                </ul>
+                <em>You can type your command below or select one here:</em>
+                <div class="chat-options" style="margin-top: 8px;">
+                    <button class="chat-option-btn" onclick="sendQuickReply('How do I start an exam?')">Start Exam</button>
+                    <button class="chat-option-btn" onclick="sendQuickReply('How can I check my results?')">View Results</button>
+                    <button class="chat-option-btn" onclick="sendQuickReply('How to create an exam?')">Create Exam</button>
+                    <button class="chat-option-btn" onclick="sendQuickReply('What are the exam rules?')">Exam Rules</button>
+                    <button class="chat-option-btn" onclick="sendQuickReply('I need technical support')">Support Needed</button>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input-area">
+            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Type your message..." onkeypress="handleChatKeyPress(event)">
+            <button class="chatbot-send" onclick="sendChatMessage()">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotWindow = document.getElementById('chatbotWindow');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatbotInput = document.getElementById('chatbotInput');
+
+        chatbotToggle.addEventListener('click', () => {
+            chatbotWindow.classList.add('active');
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.classList.remove('active');
+        });
+
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-msg ${sender === 'user' ? 'chat-user' : 'chat-bot'}`;
+            msgDiv.textContent = text;
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function getBotResponse(input) {
+            input = input.toLowerCase();
+            
+            // Student Features
+            if ((input.includes('start') || input.includes('give') || input.includes('take')) && input.includes('exam')) {
+                return "To start an exam, navigate to your Student Dashboard, find the 'Upcoming Exams' section, and click on 'Start Exam'. Make sure you have a stable internet connection!";
+            } else if (input.includes('result') || input.includes('score') || input.includes('marks')) {
+                return "You can view your results in the 'Results' section of your Student Dashboard as soon as the teacher securely publishes them.";
+            } else if (input.includes('rule') || input.includes('instruction')) {
+                return "General exam rules: 1. Ensure a stable internet connection. 2. Do not switch tabs during an active exam. 3. Submit your test before the countdown timer expires.";
+            } else if (input.includes('register') || input.includes('sign up') || input.includes('create account')) {
+                return "To register, click on 'Get Started' on the homepage. You can register as a Student to take exams or as a Teacher to create exams!";
+            } 
+            // Teacher Features
+            else if (input.includes('create') && input.includes('exam')) {
+                return "If you are a Teacher, log into your Teacher Dashboard, click on 'Create New Exam', assign the subject, duration, and passing marks to set it up instantly.";
+            } else if (input.includes('add') && (input.includes('question') || input.includes('mcq'))) {
+                return "Once an exam is created, teachers can manage it from the dashboard. Click on the eye icon (View), and select 'Add Question' to input MCQs with multiple choices.";
+            } 
+            // General Platform Issues
+            else if (input.includes('password') || input.includes('forgot') || input.includes('reset')) {
+                return "If you forgot your password or need a reset, please contact the department admin or use the 'Forgot Password' link on the login page.";
+            } else if (input.includes('dashboard') || input.includes('home')) {
+                return "You can return to your dashboard by clicking on your Profile Name or avatar in the top navigation bar.";
+            } else if (input.includes('admin') || input.includes('support') || input.includes('help')) {
+                return "If you need immediate technical support or encounter an error during an exam, please contact your department coordinator directly.";
+            } 
+            // Greetings
+            else if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
+                return "Hello! I'm your Examify Assistant. Need help navigating the dashboard, starting exams, or creating tests? Just ask!";
+            } else if (input.includes('help') || input.includes('menu') || input.includes('command')) {
+                return "Here are the commands you can use:\n- 'Start exam'\n- 'View results'\n- 'Exam rules'\n- 'Create exam'\n- 'Add question'\n- 'Reset password'\n- 'Support'\nJust type any of these and I'll guide you!";
+            } else if (input.includes('thank') || input.includes('ok') || input.includes('great')) {
+                return "You're very welcome! Good luck with your examination journey on Examify. Let me know if you need anything else.";
+            } else {
+                return "I'm sorry, I didn't quite catch that. Type 'help' or 'commands' to see what I can do for you.";
+            }
+        }
+
+        function sendChatMessage() {
+            const text = chatbotInput.value.trim();
+            if (text === '') return;
+
+            // Add user message
+            addMessage(text, 'user');
+            chatbotInput.value = '';
+
+            // Simulate typing delay before bot responds
+            setTimeout(() => {
+                const response = getBotResponse(text);
+                addMessage(response, 'bot');
+            }, 600);
+        }
+        
+        function sendQuickReply(text) {
+            chatbotInput.value = text;
+            sendChatMessage();
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; margin-bottom: 4rem;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="margin: 0; color: var(--primary-color); font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px;">{{ exam.title }}</h2>
+            <p style="margin: 0; color: var(--text-muted); font-size: 1.1rem; margin-top: 0.4rem;">
+                <span style="font-weight: 600; color: #475569;">{{ exam.course.name }}</span> | 
+                <strong>Total Marks:</strong> {{ exam.total_marks }} | 
+                <strong>Duration:</strong> {{ exam.duration_minutes }} mins
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.8rem;">
+            <a href="{% url 'teacher_dashboard' %}" class="btn btn-outline" style="border-radius: 50px;">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+            <a href="{% url 'add_question' exam.pk %}" class="btn" style="background-color: #f0fff4; color: #16a34a; border: 1px solid #bbf7d0; border-radius: 50px; font-weight: bold;">
+                + Add Single
+            </a>
+            <a href="{% url 'bulk_add_questions' exam.pk %}" class="btn btn-primary" style="border-radius: 50px; font-weight: bold; background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);">
+                <i class="fa-solid fa-bolt"></i> Fast Paste AI
+            </a>
+        </div>
+    </div>
+
+    <!-- Questions Container -->
+    <div class="glass-panel" style="padding: 2.5rem; border-top: 4px solid var(--primary-color);">
+        <h3 style="margin-top: 0; margin-bottom: 2rem; color: #1e293b; font-size: 1.4rem;">Current Question Bank</h3>
+        {% if exam.questions.all %}
+            {% for q in exam.questions.all %}
+                <div style="background-color: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0; transition: transform 0.2s;" onmouseover="this.style.transform='translateX(5px)'" onmouseout="this.style.transform='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <p style="margin: 0; font-size: 1.05rem; color: #1e293b;">
+                            <span style="background: #e2e8f0; color: #475569; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 50px; font-weight: 800; margin-right: 0.8rem; text-transform: uppercase;">{{ q.section_name }}</span>
+                            <strong>Q{{ forloop.counter }}.</strong> {{ q.text }} 
+                            <span style="color: #64748b; font-size: 0.9rem; margin-left: 0.5rem;">[{{ q.marks }} Marks]</span>
+                        </p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'edit_question' q.pk %}" class="btn" style="background-color: #fffbeb; color: #d97706; border: 1px solid #fde68a; padding: 0.3rem 0.8rem; font-size: 0.85rem; border-radius: 50px;">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <form action="{% url 'delete_question' q.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background-color: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.85rem; font-weight: bold; cursor: pointer;" onclick="return confirm('Delete this question?');">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                </div>
+                <ul style="list-style-type: none; padding-left: 1rem;">
+                    {% for choice in q.choices.all %}
+                        <li style="margin-bottom: 0.5rem;">
+                            {% if choice.is_correct %}
+                                <span style="color: green; font-weight: bold;">[Correct]</span> {{ choice.text }}
+                            {% else %}
+                                {{ choice.text }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 3rem; background: #f8fafc; border-radius: 12px; border: 2px dashed #cbd5e1;">
+                <p style="font-size: 1.1rem; color: #64748b; margin-bottom: 1rem;">No questions have been added yet.</p>
+                <a href="{% url 'bulk_add_questions' exam.pk %}" class="btn btn-primary" style="border-radius: 50px;"><i class="fa-solid fa-bolt"></i> Start Adding Questions</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

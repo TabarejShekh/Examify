@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 600px; margin: 3rem auto; position: relative;">
+    
+    <!-- Abstract orb decoration -->
+    <div style="position: absolute; top: -20px; right: -20px; font-size: 2.5rem;">📝</div>
+
+    <h2 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.5rem; text-align: center;">Join the Institute</h2>
+    <p style="text-align: center; color: var(--text-muted); margin-bottom: 2.5rem;">Create your student account to access the secure examination portal.</p>
+
+    <!-- 
+        By explicitly wrapping the Django form in our pre-styled 'form-group' classes 
+        we ensure that the Django output (which contains raw <input> tags) applies our universal CSS properly.
+    -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <span class="help-text">{{ field.help_text|safe }}</span>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p style="color: #dc2626; font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem;">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.05rem;">Complete Secure Registration</button>
+    </form>
+
+    <!-- JS for Live Image Preview -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        // Create a tiny preview element right below the file input
+                        let preview = this.nextElementSibling;
+                        if (!preview || preview.tagName !== 'IMG') {
+                            preview = document.createElement('img');
+                            preview.style.display = 'block';
+                            preview.style.marginTop = '10px';
+                            preview.style.width = '120px';
+                            preview.style.height = '120px';
+                            preview.style.objectFit = 'cover';
+                            preview.style.borderRadius = '50%';
+                            preview.style.border = '4px solid var(--primary-color)';
+                            this.parentNode.insertBefore(preview, this.nextSibling);
+                        }
+                        preview.src = URL.createObjectURL(e.target.files[0]);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <div style="margin-top: 2rem; text-align: center; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem;">
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Already have an account? <a href="{% url 'login' %}" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Sign in here</a></p>
+    </div>
+</div>
+{% endblock %}

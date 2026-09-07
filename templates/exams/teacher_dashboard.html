@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 2rem 1rem !important;
+            justify-content: center !important;
+            text-align: center;
+        }
+        .dashboard-header-inner {
+            flex-direction: column !important;
+            gap: 1.5rem !important;
+            text-align: center !important;
+            justify-content: center !important;
+        }
+        .dashboard-header-inner h2 {
+            font-size: 2rem !important;
+        }
+        .header-badges {
+            justify-content: center !important;
+        }
+        .main-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<div class="dashboard-header" style="margin-bottom: 2rem; border-radius: var(--radius-lg); background: linear-gradient(135deg, #111827, #312e81, #4c1d95); padding: 3.5rem; color: white; box-shadow: 0 20px 40px rgba(49, 46, 129, 0.25); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+    <!-- Abstract Shape Decorations for Depth -->
+    <div style="position: absolute; top: -100px; right: -50px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: absolute; bottom: -80px; left: 10%; width: 250px; height: 250px; background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+
+    <div class="dashboard-header-inner" style="display: flex; align-items: center; gap: 2.5rem; z-index: 1;">
+        {% if user.profile_image %}
+            <img src="{{ user.profile_image.url }}" alt="Profile" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid rgba(255, 255, 255, 0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+        {% else %}
+            <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #f472b6, #db2777); display: flex; justify-content: center; align-items: center; color: white; font-size: 3rem; font-weight: bold; border: 4px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+                {{ user.first_name|make_list|first|upper|default:user.username|make_list|first|upper }}
+            </div>
+        {% endif %}
+        
+        <div>
+            <h2 style="margin: 0; color: #fff; font-size: 2.6rem; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                <span id="time-greeting">Welcome back</span>, <span style="background: linear-gradient(135deg, #c084fc, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ user.first_name|default:user.username }}</span> 👋
+            </h2>
+            <script>
+                (function() {
+                    const hour = new Date().getHours();
+                    let greeting = "Good evening";
+                    if (hour < 12) greeting = "Good morning";
+                    else if (hour < 18) greeting = "Good afternoon";
+                    document.getElementById('time-greeting').innerText = greeting;
+                })();
+            </script>
+            
+            <div class="header-badges" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.2rem;">
+                <div style="display: inline-flex; align-items: center; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 6px 18px; border-radius: 50px; font-size: 0.95rem; font-weight: 600;">
+                    <i class="fa-solid fa-building" style="margin-right: 8px; color: #a78bfa;"></i> {{ user.department|default:"Dept Not Assigned" }}
+                </div>
+                {% for subject in user.subjects.all %}
+                    <div style="display: inline-flex; align-items: center; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 6px 18px; border-radius: 50px; font-size: 0.95rem; font-weight: 600;">
+                        <i class="fa-solid fa-book" style="margin-right: 8px; color: #f472b6;"></i> {{ subject.name }}
+                    </div>
+                {% endfor %}
+                {% if not user.subjects.all %}
+                    <div style="display: inline-flex; align-items: center; background: rgba(255, 255, 255, 0.05); color: #9ca3af; padding: 6px 18px; border-radius: 50px; font-size: 0.95rem; font-weight: 600; border: 1px dashed rgba(255,255,255,0.2);">
+                        No Subjects Assigned
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hero Action Button -->
+    <a href="{% url 'create_exam' %}"
+        style="position: relative; z-index: 1; margin-top: 1rem; padding: 1.2rem 2.5rem; font-size: 1.15rem; font-weight: 800; color: #1e1b4b; background: white; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 10px;"
+        onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 35px rgba(255,255,255,0.2)';" 
+        onmouseout="this.style.transform='none'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.3)';">
+        <i class="fa-solid fa-bolt" style="font-size: 1.2rem; color: #f472b6;"></i>
+        Create Custom Exam
+    </a>
+</div>
+
+<!-- Interactive KPIs Grid -->
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="glass-panel"
+        style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid var(--primary-color); transition: transform 0.2s;"
+        onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+        <div
+            style="background: var(--primary-light); color: var(--primary-color); padding: 1rem; border-radius: 12px; font-size: 2rem;">
+            <i class="fa-solid fa-file-lines"></i>
+        </div>
+        <div>
+            <h4 style="color: var(--text-muted); margin: 0; font-size: 0.9rem; text-transform: uppercase;">Total Exams
+                Authored</h4>
+            <div style="font-size: 2.2rem; font-weight: 800; color: var(--text-main);">{{ kpi_total_exams }}</div>
+        </div>
+    </div>
+
+    <div class="glass-panel"
+        style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #38a169; transition: transform 0.2s;"
+        onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+        <div style="background: #f0fff4; color: #38a169; padding: 1rem; border-radius: 12px; font-size: 2rem;">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <h4 style="color: var(--text-muted); margin: 0; font-size: 0.9rem; text-transform: uppercase;">Total Student
+                Reach</h4>
+            <div style="font-size: 2.2rem; font-weight: 800; color: var(--text-main);">{{ kpi_total_students }}</div>
+        </div>
+    </div>
+
+    <div class="glass-panel"
+        style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #805ad5; transition: transform 0.2s;"
+        onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+        <div style="background: #faf5ff; color: #805ad5; padding: 1rem; border-radius: 12px; font-size: 2rem;">
+            <i class="fa-solid fa-square-check"></i>
+        </div>
+        <div>
+            <h4 style="color: var(--text-muted); margin: 0; font-size: 0.9rem; text-transform: uppercase;">Exams Graded
+                Automatically</h4>
+            <div style="font-size: 2.2rem; font-weight: 800; color: var(--text-main);">{{ kpi_results_published }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="main-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 4rem;">
+
+    <!-- Left Column: Exams Table -->
+    <div class="glass-panel" style="padding: 0; overflow: hidden;">
+        <h3
+            style="padding: 1.5rem; margin: 0; border-bottom: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.5);">
+            Manage Your Examinations</h3>
+
+        {% if exams %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <tr
+                    style="background-color: rgba(248, 250, 252, 0.8); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+                    <th style="padding: 1rem 1.5rem;">Title / Course</th>
+                    <th style="padding: 1rem 1.5rem;">Status</th>
+                    <th style="padding: 1rem 1.5rem;">Marks</th>
+                    <th style="padding: 1rem 1.5rem;">Actions</th>
+                </tr>
+                {% for exam in exams %}
+                <tr style="border-bottom: 1px solid rgba(226, 232, 240, 0.5); transition: background-color 0.2s;"
+                    onmouseover="this.style.backgroundColor='rgba(255,255,255,0.9)'"
+                    onmouseout="this.style.backgroundColor='transparent'">
+                    <td style="padding: 1.25rem 1.5rem;">
+                        <strong style="font-size: 1.1rem; color: var(--text-main); display: block;">{{ exam.title }}</strong>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">{{ exam.course.name }} | {% if exam.department %}{{ exam.department }}{% else %}Global App{% endif %}</span>
+                    </td>
+                    <td style="padding: 1.25rem 1.5rem;">
+                        <span
+                            style="background-color: {{ exam.status_color }}20; color: {{ exam.status_color }}; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 800;">
+                            {{ exam.status }}
+                        </span>
+                    </td>
+                    <td style="padding: 1.25rem 1.5rem; color: var(--text-main); font-weight: 600;">
+                        {{ exam.total_marks }}
+                    </td>
+                    <td style="padding: 1.25rem 1.5rem;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <a href="{% url 'exam_detail' exam.pk %}" class="btn"
+                                style="background:#eff6ff; color:#2563eb; padding:0.4rem 0.8rem;">⚙️ Setup</a>
+                            <a href="{% url 'view_exam_results' exam.pk %}" class="btn"
+                                style="background:#f0fff4; color:#16a34a; padding:0.4rem 0.8rem;">📊 Analytics</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <div style="padding: 3rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">📭</div>
+            <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1rem;">Virtual classroom is empty.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Column: Interactive Charts -->
+    <div class="glass-panel" style="padding: 1.5rem;" id="analytics-section">
+        <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Student Engagement Insights</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Visualising total student
+            submissions per test.</p>
+
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="engagementChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Initialization Logic -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('engagementChart').getContext('2d');
+        const chartLabels = JSON.parse('{{ chart_labels|safe }}');
+        const chartData = JSON.parse('{{ chart_data|safe }}');
+
+        if (chartData.length === 0 || chartData.every(x => x === 0)) {
+            // Show placeholder if no data exists
+            document.getElementById('engagementChart').outerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100%; color:#94a3b8; font-style:italic;'>Awaiting student submissions...</div>";
+        } else {
+            // Render beautiful Pie Chart
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Total Submissions',
+                        data: chartData,
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.8)',
+                            'rgba(56, 161, 105, 0.8)',
+                            'rgba(128, 90, 213, 0.8)',
+                            'rgba(214, 158, 46, 0.8)',
+                            'rgba(229, 62, 62, 0.8)'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    cutout: '65%',
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
